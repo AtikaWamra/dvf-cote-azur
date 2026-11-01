@@ -88,7 +88,7 @@ Chaque exécution produit une [note de synthèse de 2 pages](outputs/note_de_syn
 ## Architecture
 
 ```mermaid
-flowchart LR
+flowchart TB
     A[Geo-DVF<br/>data.gouv.fr] -->|download.py| B[(CSV bruts)]
     B -->|01_staging.sql| C[stg_dvf<br/>typage]
     C -->|02_clean.sql| D[int_mutations<br/>1 ligne = 1 vente<br/>+ motif de rejet]
