@@ -154,7 +154,7 @@ def chart_typologie(t: pd.DataFrame, out: Path):
     ax.yaxis.set_major_formatter(EUR)
     ax.set_ylim(0, t.prix_m2_median.max() * 1.25)
     ax.grid(axis="x", visible=False)
-    ax.set_title("Plus c'est petit, plus c'est cher au m²")
+    ax.set_title("Les petites surfaces, plus chères au m²")
     _finish(fig, ax, out, "Appartements : prix médian au m² et surface médiane par typologie")
 
 
@@ -205,35 +205,120 @@ def chart_focus(f: pd.DataFrame, out: Path):
     log.info("  %s", out.name)
 
 
-def chart_carte(con, out: Path):
-    """Bubble map of communes: position = GPS centroid, size = volume, colour = price."""
-    df = con.execute(f"""
-        SELECT c.nom_commune, c.latitude, c.longitude, COUNT(*) AS ventes,
-               MEDIAN(f.prix_m2) AS prix_m2
+def _geo_paths(geojson: Path) -> dict[str, list]:
+    """Commune code -> list of matplotlib Paths (exterior + holes)."""
+    import json
+
+    from matplotlib.path import Path as MPath
+
+    out = {}
+    feats = json.loads(geojson.read_text(encoding="utf-8"))["features"]
+    for f in feats:
+        g = f["geometry"]
+        polys = [g["coordinates"]] if g["type"] == "Polygon" else g["coordinates"]
+        paths = []
+        for poly in polys:
+            rings = [MPath(ring, closed=True) for ring in poly]
+            paths.append(MPath.make_compound_path(*rings))
+        out[f["properties"]["code"]] = paths
+    return out
+
+
+def _centroid(v):
+    """Area-weighted centroid of a ring (shoelace formula)."""
+    import numpy as np
+
+    x, y = v[:, 0], v[:, 1]
+    x1, y1 = np.roll(x, -1), np.roll(y, -1)
+    cross = x * y1 - x1 * y
+    a = cross.sum() / 2
+    if abs(a) < 1e-12:
+        return x.mean(), y.mean()
+    return ((x + x1) * cross).sum() / (6 * a), ((y + y1) * cross).sum() / (6 * a)
+
+
+# Classed sequential scale (one hue, light -> dark) and its bounds in €/m²
+MAP_BREAKS = [3000, 4000, 5000, 6000, 7000]
+MAP_COLORS = ["#dbe8f8", "#a9c8ef", "#6fa3e3", "#2a78d6", "#1a5aa8", "#0e3a73"]
+MAP_NODATA = "#e2e1dc"
+MAP_SEA = "#f3f6f9"
+
+
+def chart_carte(con, out: Path, geojson: Path | None = None):
+    """Choropleth: each commune coloured by its median price per m² (last 3 complete years)."""
+    import matplotlib.patheffects as pe
+    from matplotlib.patches import Patch, PathPatch
+
+    geojson = geojson or (config.SEEDS_DIR / "communes_06.geojson")
+    if not geojson.exists():
+        log.warning("  Fond de carte absent (%s) : carte ignorée", geojson.name)
+        return
+    df = con.execute("""
+        SELECT c.code_commune, c.nom_commune, COUNT(*) AS ventes, MEDIAN(f.prix_m2) AS prix_m2
         FROM fact_ventes f JOIN dim_commune c USING (code_commune)
         JOIN dim_date d USING (date_key)
-        WHERE d.annee = (SELECT annee_ref FROM param)
-        GROUP BY ALL HAVING COUNT(*) >= {config.MIN_VENTES_COMMUNE}
+        WHERE d.annee BETWEEN (SELECT annee_ref - 2 FROM param) AND (SELECT annee_ref FROM param)
+        GROUP BY ALL
     """).df()
-    if df.empty:
-        return
-    fig, ax = plt.subplots(figsize=(9, 6.5))
-    sc = ax.scatter(df.longitude, df.latitude, s=df.ventes / df.ventes.max() * 1400 + 25,
-                    c=df.prix_m2, cmap="Blues", vmin=df.prix_m2.quantile(0.05) * 0.6,
-                    edgecolors=SURFACE, linewidths=1.5, alpha=0.95)
-    for r in df.nlargest(10, "ventes").itertuples():
-        ax.annotate(r.nom_commune, (r.longitude, r.latitude), xytext=(0, -14),
-                    textcoords="offset points", ha="center", fontsize=8.5, color=INK)
-    cb = fig.colorbar(sc, ax=ax, shrink=0.7, format=EUR)
-    cb.set_label("Prix médian au m²", color=INK_2)
-    cb.outline.set_visible(False)
-    ax.set_aspect(1 / 0.72)  # longitude scaling at ~43.7°N
+    ref = int(con.execute("SELECT annee_ref FROM param").fetchone()[0])
+    fiable = df[df.ventes >= config.MIN_VENTES_COMMUNE].set_index("code_commune")
+
+    def couleur(p):
+        for b, c in zip(MAP_BREAKS, MAP_COLORS, strict=False):
+            if p < b:
+                return c
+        return MAP_COLORS[-1]
+
+    paths = _geo_paths(geojson)
+    fig, ax = plt.subplots(figsize=(8.6, 8.4))
+    ax.set_facecolor(MAP_SEA)
+    xs, ys = [], []
+    for code, plist in paths.items():
+        fc = couleur(fiable.loc[code, "prix_m2"]) if code in fiable.index else MAP_NODATA
+        for pth in plist:
+            ax.add_patch(PathPatch(pth, facecolor=fc, edgecolor="white", linewidth=0.6))
+            v = pth.vertices
+            xs += [v[:, 0].min(), v[:, 0].max()]
+            ys += [v[:, 1].min(), v[:, 1].max()]
+    ax.set_xlim(min(xs) - 0.02, max(xs) + 0.02)
+    ax.set_ylim(min(ys) - 0.06, max(ys) + 0.02)
+    ax.set_aspect(1 / 0.722)  # cos(43.8°): keeps distances true
+
+    halo = [pe.withStroke(linewidth=3, foreground="white")]
+    for nom in config.COMMUNES_FOCUS:
+        row = df[df.nom_commune == nom]
+        if row.empty or row.code_commune.iloc[0] not in paths:
+            continue
+        code = row.code_commune.iloc[0]
+        v = max(paths[code], key=lambda p: len(p.vertices)).vertices
+        x, y = _centroid(v)
+        prix = f"\n{_fmt(fiable.loc[code, 'prix_m2'], ' €')}" if code in fiable.index else ""
+        ax.text(x, y, nom + prix, ha="center", va="center", fontsize=8.5, color=INK,
+                fontweight="bold", path_effects=halo, linespacing=1.15)
+    ax.text(0.80, 0.07, "Mer Méditerranée", transform=ax.transAxes, fontsize=10,
+            color="#8aa4c2", style="italic", ha="center")
+
+    labels = [f"moins de {_fmt(MAP_BREAKS[0], ' €')}"]
+    labels += [f"{_fmt(a)} à {_fmt(b, ' €')}" for a, b in zip(MAP_BREAKS[:-1], MAP_BREAKS[1:], strict=True)]
+    labels += [f"{_fmt(MAP_BREAKS[-1], ' €')} et plus"]
+    handles = [Patch(facecolor=c, label=lab) for c, lab in zip(MAP_COLORS, labels, strict=True)]
+    handles.append(Patch(facecolor=MAP_NODATA, label=f"moins de {config.MIN_VENTES_COMMUNE} ventes"))
+    ax.legend(handles=handles, title="Prix médian au m²", loc="upper left", fontsize=8.5,
+              title_fontsize=9, frameon=True, facecolor="white", edgecolor=GRID)
     ax.grid(False)
     ax.set_xticks([])
     ax.set_yticks([])
-    ax.spines["bottom"].set_visible(False)
+    for sp in ax.spines.values():
+        sp.set_visible(False)
     ax.set_title("Carte des prix : la mer fait le prix")
-    _finish(fig, ax, out, "Une bulle par commune, taille = nombre de ventes, couleur = prix au m²")
+    fig.text(0.01, 0.01, "Source : DVF (DGFiP), Geo-DVF Etalab ; contours IGN Admin Express "
+             "(france-geojson). Ventes de logements nettoyées.", color=MUTED, fontsize=8)
+    ax.text(0, 1.015, f"Prix médian au m² par commune, toutes ventes de logements {ref - 2}-{ref}",
+            transform=ax.transAxes, color=INK_2, fontsize=10, va="bottom")
+    fig.tight_layout(rect=(0, 0.03, 1, 0.97))
+    fig.savefig(out, dpi=160)
+    plt.close(fig)
+    log.info("  %s", out.name)
 
 
 def chart_effets(eff: pd.DataFrame, r2: float, out: Path):
