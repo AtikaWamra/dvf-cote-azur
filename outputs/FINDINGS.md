@@ -6,7 +6,7 @@
 4. **Commune à surveiller.** Parmi les communes avec au moins 60 ventes, Valbonne affiche la plus forte hausse sur un an (+11,0 %, à 5 509 €/m²).
 5. **Le prix de la mer.** Un appartement sur une commune littorale se vend +27,9 % plus cher au m² que dans l'arrière-pays (5 061 € contre 3 958 €).
 6. **Les studios, chers au m².** Un T1 se négocie 5 265 €/m² contre 4 402 €/m² pour un T4 (+19,6 %). La demande locative et saisonnière tire les petites surfaces.
-7. **Ce que permet un budget de 300 000 €.** Au prix médian, 300 000 € achètent environ 113 m² à Sospel mais seulement 35 m² à Beaulieu-sur-Mer.
+7. **Ce que permet un budget de 300 000 €.** Au prix médian, 300 000 € achètent environ 113 m² à Sospel mais seulement 35 m² à Villefranche-sur-Mer.
 8. **Saisonnalité.** Les mois les plus actifs sont juin, juil., sept. ; août est le plus calme (6,7 % des ventes annuelles contre 9,8 % pour juin).
 9. **Qualité des données.** 184 548 mutations brutes, 124 231 ventes de logements conservées (67,3 %). Premier motif d'exclusion : « aucun logement » (20,0 %).
 10. **À caractéristiques égales.** Le modèle de prix (R² = 27,7 %, 124 148 ventes) isole chaque facteur : un T1 vaut +12,2 % au m² par rapport à un T3 de la même commune, la même année, et une maison +44,5 % par rapport à un appartement.
