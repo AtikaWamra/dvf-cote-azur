@@ -1,0 +1,4 @@
+Modèle hédonique OLS (erreurs robustes HC1)
+Observations : 124148
+R² : 0.277
+Références : commune = Nice, type = Appartement, typologie = T3, année = 2021

@@ -1,0 +1,12 @@
+etape,nb_mutations,pct
+01_pas_une_vente_simple,12970,7.03
+02_aucun_logement,36831,19.96
+03_vente_multi_logements,6081,3.3
+04_vente_mixte_local_pro,838,0.45
+05_vente_multi_communes,52,0.03
+06_prix_ou_surface_manquant,29,0.02
+07_surface_hors_bornes,35,0.02
+08_prix_hors_bornes,535,0.29
+09_prix_m2_aberrant,400,0.22
+10_hors_p1_p99,2546,1.38
+99_conservee,124231,67.32
