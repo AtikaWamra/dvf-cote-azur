@@ -1,0 +1,14 @@
+# Données (volumineuses, re-téléchargeables)
+data/raw/
+data/demo/
+outputs/dvf.duckdb
+outputs/powerbi/
+outputs/tableau/tableau_ventes.csv
+outputs_demo/
+
+# Python
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.venv/
