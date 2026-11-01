@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: actualisation
+  cancel-in-progress: false
+
 jobs:
   refresh:
     runs-on: ubuntu-latest
@@ -32,6 +36,6 @@ jobs:
             echo "Aucune nouvelle donnée."
           else
             git commit -m "Actualisation automatique des données DVF ($(date +%Y-%m-%d))"
-            git pull --rebase origin main
+            git pull --rebase -X theirs origin main
             git push
           fi
