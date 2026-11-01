@@ -9,18 +9,18 @@ Peymeinade,False,59,3810.0,79.0
 Le Cannet,False,924,3989.0,75.0
 Saint-André-de-la-Roche,False,36,4047.0,74.0
 Vence,False,241,4154.0,72.0
+La Colle-sur-Loup,False,53,4265.0,70.0
 Mouans-Sartoux,False,38,4264.0,70.0
 Vallauris,True,526,4284.0,70.0
-La Colle-sur-Loup,False,53,4265.0,70.0
 Valbonne,False,83,4574.0,66.0
 Pégomas,False,47,4625.0,65.0
 Mougins,False,165,4712.0,64.0
 Péone,False,57,4667.0,64.0
-Saint-Laurent-du-Var,True,490,4774.0,63.0
 Cagnes-sur-Mer,True,842,4792.0,63.0
-Mandelieu-la-Napoule,True,686,4810.0,62.0
+Saint-Laurent-du-Var,True,490,4774.0,63.0
 Nice,True,7232,4853.0,62.0
 Biot,False,37,4847.0,62.0
+Mandelieu-la-Napoule,True,686,4810.0,62.0
 Menton,True,944,5000.0,60.0
 Isola,False,93,5073.0,59.0
 Antibes,True,1854,5188.0,58.0
@@ -31,5 +31,5 @@ Roquebrune-Cap-Martin,True,440,6125.0,49.0
 Théoule-sur-Mer,True,79,6655.0,45.0
 Beausoleil,False,270,6955.0,43.0
 Cap-d'Ail,True,73,7396.0,41.0
-Beaulieu-sur-Mer,True,109,8491.0,35.0
 Villefranche-sur-Mer,True,132,8513.0,35.0
+Beaulieu-sur-Mer,True,109,8491.0,35.0
