@@ -17,6 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -29,6 +31,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git reset --mixed origin/main
           git add README.md images outputs/FINDINGS.md outputs/tables outputs/quality_report.md \
                   outputs/note_de_synthese.pdf outputs/tableau/tableau_communes.csv \
                   outputs/tableau/tableau_moteurs_prix.csv outputs/tableau/tableau_audit.csv
@@ -36,6 +40,5 @@ jobs:
             echo "Aucune nouvelle donnée."
           else
             git commit -m "Actualisation automatique des données DVF ($(date +%Y-%m-%d))"
-            git pull --rebase -X theirs origin main
-            git push
+            git push origin HEAD:main
           fi
