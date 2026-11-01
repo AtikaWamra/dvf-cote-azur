@@ -281,7 +281,7 @@ def chart_carte(con, out: Path, geojson: Path | None = None):
             xs += [v[:, 0].min(), v[:, 0].max()]
             ys += [v[:, 1].min(), v[:, 1].max()]
     ax.set_xlim(min(xs) - 0.02, max(xs) + 0.02)
-    ax.set_ylim(min(ys) - 0.06, max(ys) + 0.02)
+    ax.set_ylim(min(ys) - 0.10, max(ys) + 0.02)
     ax.set_aspect(1 / 0.722)  # cos(43.8°): keeps distances true
 
     halo = [pe.withStroke(linewidth=3, foreground="white")]
@@ -295,7 +295,7 @@ def chart_carte(con, out: Path, geojson: Path | None = None):
         prix = f"\n{_fmt(fiable.loc[code, 'prix_m2'], ' €')}" if code in fiable.index else ""
         ax.text(x, y, nom + prix, ha="center", va="center", fontsize=8.5, color=INK,
                 fontweight="bold", path_effects=halo, linespacing=1.15)
-    ax.text(0.80, 0.07, "Mer Méditerranée", transform=ax.transAxes, fontsize=10,
+    ax.text(0.30, 0.03, "Mer Méditerranée", transform=ax.transAxes, fontsize=10,
             color="#8aa4c2", style="italic", ha="center")
 
     labels = [f"moins de {_fmt(MAP_BREAKS[0], ' €')}"]
@@ -303,7 +303,7 @@ def chart_carte(con, out: Path, geojson: Path | None = None):
     labels += [f"{_fmt(MAP_BREAKS[-1], ' €')} et plus"]
     handles = [Patch(facecolor=c, label=lab) for c, lab in zip(MAP_COLORS, labels, strict=True)]
     handles.append(Patch(facecolor=MAP_NODATA, label=f"moins de {config.MIN_VENTES_COMMUNE} ventes"))
-    ax.legend(handles=handles, title="Prix médian au m²", loc="upper left", fontsize=8.5,
+    ax.legend(handles=handles, title="Prix médian au m²", loc="lower right", fontsize=8.5,
               title_fontsize=9, frameon=True, facecolor="white", edgecolor=GRID)
     ax.grid(False)
     ax.set_xticks([])
