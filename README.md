@@ -1,6 +1,5 @@
 # Marché immobilier de la Côte d'Azur : où et quand acheter ?
 
-![CI](https://github.com/AtikaWamra/dvf-cote-azur/actions/workflows/ci.yml/badge.svg)
 ![Python](https://img.shields.io/badge/Python-3.10+-2a78d6)
 ![DuckDB](https://img.shields.io/badge/SQL-DuckDB-2a78d6)
 ![Power BI](https://img.shields.io/badge/Power%20BI-dashboard-eb6834)
