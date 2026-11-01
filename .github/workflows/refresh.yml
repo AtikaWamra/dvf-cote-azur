@@ -32,5 +32,6 @@ jobs:
             echo "Aucune nouvelle donnée."
           else
             git commit -m "Actualisation automatique des données DVF ($(date +%Y-%m-%d))"
+            git pull --rebase origin main
             git push
           fi
