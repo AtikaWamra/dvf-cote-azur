@@ -30,7 +30,7 @@ Analyse de **toutes les ventes immobilières des Alpes-Maritimes** depuis 2021, 
 7. **Ce que permet un budget de 300 000 €.** Au prix médian, 300 000 € achètent environ 113 m² à Sospel mais seulement 35 m² à Beaulieu-sur-Mer.
 8. **Saisonnalité.** Les mois les plus actifs sont juin, juil., sept. ; août est le plus calme (6,7 % des ventes annuelles contre 9,8 % pour juin).
 9. **Qualité des données.** 184 548 mutations brutes, 124 231 ventes de logements conservées (67,3 %). Premier motif d'exclusion : « aucun logement » (20,0 %).
-10. **À caractéristiques égales.** Le modèle de prix (R² = 27,7 %, 124 148 ventes) isole chaque facteur : un T1 vaut +12,2 % au m² par rapport à un T3 de la même commune, la même année, et une maison +44,5 % par rapport à un appartement.
+10. **À caractéristiques égales.** Le modèle de prix (R² = 27,7 %, 124 148 ventes) isole chaque facteur : un T1 vaut +12,2 % au m² par rapport à un T3 de la même commune, la même année, et une maison +44,5 % par rapport à un appartement(terrain compris).
 11. **Le prix brut peut tromper.** À Opio, la médiane brute surestime le niveau de prix de 39,4 points (indice 142,2 brut contre 102,8 à caractéristiques égales, Nice = 100) : c'est le type de biens vendus qui joue, pas la commune elle-même.
 
 _Généré automatiquement le 01/11/2026 par `make run`._
