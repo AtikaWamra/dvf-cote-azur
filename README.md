@@ -7,7 +7,7 @@
 ![Tableau](https://img.shields.io/badge/Tableau-Public-eb6834)
 ![Actualisation](https://github.com/AtikaWamra/dvf-cote-azur/actions/workflows/refresh.yml/badge.svg)
 
-Analyse de **toutes les ventes immobilières des Alpes-Maritimes** depuis 2020, à partir des données notariales ouvertes (DVF). Du fichier brut à un tableau de bord **Power BI** et une histoire de données **Tableau Public**, avec un pipeline SQL testé, des contrôles qualité automatiques, un modèle statistique des prix et une note de synthèse PDF. Le tout se met à jour seul chaque mois.
+Analyse de **toutes les ventes immobilières des Alpes-Maritimes** depuis 2021, à partir des données notariales ouvertes (DVF). Du fichier brut à un tableau de bord **Power BI** et une histoire de données **Tableau Public**, avec un pipeline SQL testé, des contrôles qualité automatiques, un modèle statistique des prix et une note de synthèse PDF. Le tout se met à jour seul chaque mois.
 
 **[Tableau de bord Power BI](#)** · **[Story Tableau Public](#)** · **[Note de synthèse (PDF)](outputs/note_de_synthese.pdf)** · [Méthodologie](docs/methodologie.md)
 
