@@ -1,0 +1,119 @@
+// =====================================================================
+// Mesures DAX - Marché immobilier Côte d'Azur
+// À créer dans une table de mesures vide nommée "_Mesures"
+// (Accueil > Entrer des données > nommer la table "_Mesures").
+// Prérequis : dim_date marquée comme table de dates sur la colonne [date].
+// =====================================================================
+
+// ---------- Volumes ----------
+
+Ventes =
+COUNTROWS ( fact_ventes )
+
+Ventes N-1 =
+CALCULATE ( [Ventes], SAMEPERIODLASTYEAR ( dim_date[date] ) )
+
+Ventes évol. % =
+DIVIDE ( [Ventes] - [Ventes N-1], [Ventes N-1] )
+
+Ventes 12 mois glissants =
+CALCULATE (
+    [Ventes],
+    DATESINPERIOD ( dim_date[date], MAX ( dim_date[date] ), -12, MONTH )
+)
+
+Volume financier (M€) =
+DIVIDE ( SUM ( fact_ventes[valeur_fonciere] ), 1e6 )
+
+
+// ---------- Prix ----------
+// Médiane et non moyenne : une seule villa à 15 M€ fausse une moyenne
+// sur une petite commune. La médiane est aussi la norme des Notaires de France.
+
+Prix m² médian =
+MEDIAN ( fact_ventes[prix_m2] )
+
+Prix médian =
+MEDIAN ( fact_ventes[valeur_fonciere] )
+
+Surface médiane =
+MEDIAN ( fact_ventes[surface_bati] )
+
+Prix m² médian N-1 =
+CALCULATE ( [Prix m² médian], SAMEPERIODLASTYEAR ( dim_date[date] ) )
+
+Prix m² évol. % =
+DIVIDE ( [Prix m² médian] - [Prix m² médian N-1], [Prix m² médian N-1] )
+
+Prix m² médian 12 mois glissants =
+CALCULATE (
+    [Prix m² médian],
+    DATESINPERIOD ( dim_date[date], MAX ( dim_date[date] ), -12, MONTH )
+)
+
+
+// ---------- Garde-fou statistique ----------
+// N'affiche pas une médiane calculée sur moins de 30 ventes.
+
+Prix m² médian (fiable) =
+IF ( [Ventes] >= 30, [Prix m² médian] )
+
+
+// ---------- Comparaisons ----------
+
+Prix m² médian département =
+CALCULATE ( [Prix m² médian], REMOVEFILTERS ( dim_commune ) )
+
+Écart vs département % =
+DIVIDE ( [Prix m² médian] - [Prix m² médian département], [Prix m² médian département] )
+
+Rang commune (prix) =
+IF (
+    HASONEVALUE ( dim_commune[nom_commune] ) && [Ventes] >= 30,
+    RANKX (
+        FILTER ( ALLSELECTED ( dim_commune[nom_commune] ), [Ventes] >= 30 ),
+        [Prix m² médian], , DESC, DENSE
+    )
+)
+
+Prime littorale % =
+VAR _littoral =
+    CALCULATE ( [Prix m² médian], dim_commune[est_littorale] = TRUE () )
+VAR _arriere =
+    CALCULATE ( [Prix m² médian], dim_commune[est_littorale] = FALSE () )
+RETURN
+    DIVIDE ( _littoral - _arriere, _arriere )
+
+
+// ---------- Simulateur de budget ----------
+// Créer d'abord un paramètre What-if : Modélisation > Nouveau paramètre >
+// Plage numérique, nom "Budget", de 100 000 à 1 000 000, pas de 25 000,
+// valeur par défaut 300 000. Power BI crée la mesure [Valeur Budget].
+
+Surface accessible (m²) =
+DIVIDE ( [Valeur Budget], [Prix m² médian (fiable)] )
+
+
+// ---------- Textes dynamiques (titres et cartes) ----------
+
+Titre prix =
+"Prix médian : "
+    & FORMAT ( [Prix m² médian], "# ##0 €" ) & "/m²  ("
+    & FORMAT ( [Prix m² évol. %], "+0,0 %;-0,0 %" ) & " sur un an)"
+
+Titre budget =
+"Avec " & FORMAT ( [Valeur Budget], "# ##0 €" )
+    & ", on achète en moyenne "
+    & FORMAT ( [Surface accessible (m²)], "0" ) & " m² sur la sélection"
+
+Couleur évolution =
+// Mise en forme conditionnelle : bleu si hausse, orange si baisse
+IF ( [Prix m² évol. %] >= 0, "#2a78d6", "#eb6834" )
+
+Période des données =
+// Bornes réelles des ventes (dim_date couvre des années pleines)
+VAR _debut = CALCULATE ( MIN ( dim_date[date] ), fact_ventes )
+VAR _fin   = CALCULATE ( MAX ( dim_date[date] ), fact_ventes )
+RETURN
+    "Ventes du " & FORMAT ( _debut, "dd/mm/yyyy" ) & " au " & FORMAT ( _fin, "dd/mm/yyyy" )
+    & " · Source : DVF (DGFiP)"
