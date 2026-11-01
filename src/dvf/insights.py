@@ -141,7 +141,7 @@ def build_model_findings(m) -> list[tuple[str, str]]:
                   f"Le modèle de prix (R² = {_d(m.r2 * 100)} %, {_n(m.n)} ventes) isole chaque facteur : "
                   f"un T1 vaut {_pct(e.loc['T1'].effet_pct)} au m² par rapport à un T3 de la même commune, "
                   f"la même année" +
-                  (f", et une maison {_pct(e.loc['Maison'].effet_pct)} par rapport à un appartement."
+                  (f", et une maison {_pct(e.loc['Maison'].effet_pct)} par rapport à un appartement(terrain compris)."
                    if "Maison" in e.index else ".")))
     c = m.communes
     if len(c) >= 3:
