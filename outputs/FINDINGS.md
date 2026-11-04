@@ -12,4 +12,4 @@
 10. **À caractéristiques égales.** Le modèle de prix (R² = 27,7 %, 124 148 ventes) isole chaque facteur : un T1 vaut +12,2 % au m² par rapport à un T3 de la même commune, la même année, et une maison +44,5 % par rapport à un appartement(terrain compris).
 11. **Le prix brut peut tromper.** À Opio, la médiane brute surestime le niveau de prix de 39,4 points (indice 142,2 brut contre 102,8 à caractéristiques égales, Nice = 100) : c'est le type de biens vendus qui joue, pas la commune elle-même.
 
-_Généré automatiquement le 03/11/2026 par `make run`._
+_Généré automatiquement le 04/11/2026 par `make run`._
