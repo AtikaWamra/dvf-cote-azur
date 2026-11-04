@@ -13,7 +13,7 @@ COUNTROWS ( fact_ventes )
 Ventes N-1 =
 CALCULATE ( [Ventes], SAMEPERIODLASTYEAR ( dim_date[date] ) )
 
-Ventes évol. % =
+Ventes évol % =
 DIVIDE ( [Ventes] - [Ventes N-1], [Ventes N-1] )
 
 Ventes 12 mois glissants =
@@ -42,7 +42,7 @@ MEDIAN ( fact_ventes[surface_bati] )
 Prix m² médian N-1 =
 CALCULATE ( [Prix m² médian], SAMEPERIODLASTYEAR ( dim_date[date] ) )
 
-Prix m² évol. % =
+Prix m² évol % =
 DIVIDE ( [Prix m² médian] - [Prix m² médian N-1], [Prix m² médian N-1] )
 
 Prix m² médian 12 mois glissants =
@@ -88,7 +88,10 @@ RETURN
 // ---------- Simulateur de budget ----------
 // Créer d'abord un paramètre What-if : Modélisation > Nouveau paramètre >
 // Plage numérique, nom "Budget", de 100 000 à 1 000 000, pas de 25 000,
-// valeur par défaut 300 000. Power BI crée la mesure [Valeur Budget].
+// valeur par défaut 300 000. Power BI crée la mesure [Valeur Budget]
+// (en anglais : [Budget Value] ; adapter le nom dans les 2 mesures qui l utilisent).
+// Formats : dans FORMAT, "," = séparateur de milliers et "." = décimale ;
+// Power BI les affiche ensuite selon la langue (espace et virgule en français).
 
 Surface accessible (m²) =
 DIVIDE ( [Valeur Budget], [Prix m² médian (fiable)] )
@@ -98,17 +101,17 @@ DIVIDE ( [Valeur Budget], [Prix m² médian (fiable)] )
 
 Titre prix =
 "Prix médian : "
-    & FORMAT ( [Prix m² médian], "# ##0 €" ) & "/m²  ("
-    & FORMAT ( [Prix m² évol. %], "+0,0 %;-0,0 %" ) & " sur un an)"
+    & FORMAT ( [Prix m² médian], "#,##0 €" ) & "/m²  ("
+    & FORMAT ( [Prix m² évol %], "+0.0%;-0.0%" ) & " sur un an)"
 
 Titre budget =
-"Avec " & FORMAT ( [Valeur Budget], "# ##0 €" )
+"Avec " & FORMAT ( [Valeur Budget], "#,##0 €" )
     & ", on achète en moyenne "
     & FORMAT ( [Surface accessible (m²)], "0" ) & " m² sur la sélection"
 
 Couleur évolution =
 // Mise en forme conditionnelle : bleu si hausse, orange si baisse
-IF ( [Prix m² évol. %] >= 0, "#2a78d6", "#eb6834" )
+IF ( [Prix m² évol %] >= 0, "#2a78d6", "#eb6834" )
 
 Période des données =
 // Bornes réelles des ventes (dim_date couvre des années pleines)
@@ -117,3 +120,10 @@ VAR _fin   = CALCULATE ( MAX ( dim_date[date] ), fact_ventes )
 RETURN
     "Ventes du " & FORMAT ( _debut, "dd/mm/yyyy" ) & " au " & FORMAT ( _fin, "dd/mm/yyyy" )
     & " · Source : DVF (DGFiP)"
+
+Couleur évol ventes =
+IF ( [Ventes évol %] >= 0, "#2a78d6", "#eb6834" )
+
+Couleur littoral =
+// Barres du simulateur : bleu = commune littorale, orange = arrière-pays
+IF ( SELECTEDVALUE ( dim_commune[est_littorale] ), "#2a78d6", "#eb6834" )
