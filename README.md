@@ -3,12 +3,11 @@
 ![Python](https://img.shields.io/badge/Python-3.10+-2a78d6)
 ![DuckDB](https://img.shields.io/badge/SQL-DuckDB-2a78d6)
 ![Power BI](https://img.shields.io/badge/Power%20BI-dashboard-eb6834)
-![Tableau](https://img.shields.io/badge/Tableau-Public-eb6834)
 ![Actualisation](https://github.com/AtikaWamra/dvf-cote-azur/actions/workflows/refresh.yml/badge.svg)
 
-Analyse de **toutes les ventes immobilières des Alpes-Maritimes** depuis 2021, à partir des données notariales ouvertes (DVF). Du fichier brut à un tableau de bord **Power BI** et une histoire de données **Tableau Public**, avec un pipeline SQL testé, des contrôles qualité automatiques, un modèle statistique des prix et une note de synthèse PDF. Le tout se met à jour seul chaque mois.
+Analyse de **toutes les ventes immobilières des Alpes-Maritimes** depuis 2021, à partir des données notariales ouvertes (DVF). Du fichier brut à un tableau de bord **Power BI** interactif, avec un pipeline SQL testé, des contrôles qualité automatiques, un modèle statistique des prix et une note de synthèse PDF. Le tout se met à jour seul chaque mois.
 
-**[Tableau de bord Power BI](#)** · **[Story Tableau Public](#)** · **[Note de synthèse (PDF)](outputs/note_de_synthese.pdf)** · [Méthodologie](docs/methodologie.md)
+**[Tableau de bord Power BI](#le-tableau-de-bord-power-bi)** · **[Note de synthèse (PDF)](outputs/note_de_synthese.pdf)** · [Méthodologie](docs/methodologie.md)
 
 ![Carte des prix](images/05_carte_prix.png)
 
@@ -21,47 +20,20 @@ Analyse de **toutes les ventes immobilières des Alpes-Maritimes** depuis 2021, 
 ## Principaux enseignements
 
 <!-- FINDINGS:START -->
-1. **Prix contre volumes.** Entre 2021 et 2025, le nombre de ventes a évolué de -15,2 % et le prix médian au m² de +14,3 %. En clair, le marché s'est ajusté par les **volumes**, pas par les prix : les vendeurs ont préféré attendre plutôt que baisser.
-2. **Le pic est passé.** Le pic d'activité date de 2022 avec 29 083 ventes. En 2025, on en compte 23 289, soit -19,9 % par rapport au pic.
-3. **Un département, deux marchés.** En 2025, Èze est la commune la plus chère (8 906 €/m²) et Gréolières la plus accessible (2 093 €/m²), un écart de x4,3 (communes avec au moins 30 ventes).
-4. **Commune à surveiller.** Parmi les communes avec au moins 60 ventes, Valbonne affiche la plus forte hausse sur un an (+11,0 %, à 5 509 €/m²).
-5. **Le prix de la mer.** Un appartement sur une commune littorale se vend +27,9 % plus cher au m² que dans l'arrière-pays (5 061 € contre 3 958 €).
-6. **Les studios, chers au m².** Un T1 se négocie 5 265 €/m² contre 4 402 €/m² pour un T4 (+19,6 %). La demande locative et saisonnière tire les petites surfaces.
-7. **Ce que permet un budget de 300 000 €.** Au prix médian, 300 000 € achètent environ 113 m² à Sospel mais seulement 35 m² à Beaulieu-sur-Mer.
-8. **Saisonnalité.** Les mois les plus actifs sont juin, juil., sept. ; août est le plus calme (6,7 % des ventes annuelles contre 9,8 % pour juin).
-9. **Qualité des données.** 184 548 mutations brutes, 124 231 ventes de logements conservées (67,3 %). Premier motif d'exclusion : « aucun logement » (20,0 %).
-10. **À caractéristiques égales.** Le modèle de prix (R² = 27,7 %, 124 148 ventes) isole chaque facteur : un T1 vaut +12,2 % au m² par rapport à un T3 de la même commune, la même année, et une maison +44,5 % par rapport à un appartement(terrain compris).
-11. **Le prix brut peut tromper.** À Opio, la médiane brute surestime le niveau de prix de 39,4 points (indice 142,2 brut contre 102,8 à caractéristiques égales, Nice = 100) : c'est le type de biens vendus qui joue, pas la commune elle-même.
-
-_Généré automatiquement le 03/11/2026 par `make run`._
+_Lancez `make all` pour générer les enseignements à partir des données réelles._
 <!-- FINDINGS:END -->
 
-## Deux outils, deux usages
+## Le tableau de bord Power BI
 
-**Power BI pour piloter, Tableau pour raconter.** Le même modèle de données alimente les deux.
+| Vue d'ensemble | Simulateur de budget |
+|---|---|
+| ![](images/pbi_page1.png) | ![](images/pbi_page4.png) |
 
-| | Power BI | Tableau Public |
-|---|---|---|
-| Pour qui | un décideur, usage récurrent | grand public, lecture guidée |
-| Format | tableau de bord 5 pages, KPI, simulateur | **Story** en 5 étapes |
-| Données | schéma en étoile, mesures DAX | extrait plat, expressions **LOD** |
-| Point fort | time intelligence, paramètre What-if | carte de **chaque vente**, bonnes affaires, viz in tooltip |
+- **Vue d'ensemble** : ventes, prix médian au m², prix médian et volume financier, comparés automatiquement à l'année précédente (bleu si hausse, orange si baisse). Tendances sur 12 mois glissants pour lisser la saisonnalité.
+- **Simulateur de budget** : un curseur de 100 000 à 1 M€ calcule la surface d'appartement accessible dans les plus grands marchés du département. Les communes littorales en bleu, l'arrière-pays en orange.
+- **Modèle** : schéma en étoile importé en Parquet, table de dates marquée, 23 mesures DAX (`SAMEPERIODLASTYEAR`, `DATESINPERIOD`, `RANKX`, paramètre What-if, titres et couleurs dynamiques). Médiane publiée seulement à partir de 30 ventes.
 
-### Power BI
-
-| Vue d'ensemble | Carte et communes | Simulateur de budget |
-|---|---|---|
-| ![](images/pbi_page1.png) | ![](images/pbi_page2.png) | ![](images/pbi_page4.png) |
-
-5 pages : vue d'ensemble, carte et classement des communes, tendances, **simulateur de budget interactif** (curseur de 100 000 à 1 M€) et qualité des données. Mesures DAX : évolutions N-1, 12 mois glissants, classement dynamique, prime littorale, titres dynamiques. Voir [`powerbi/`](powerbi/).
-
-### Tableau
-
-| Carte des ventes | Bonnes affaires | Ce qui fait le prix |
-|---|---|---|
-| ![](images/tab_story3.png) | ![](images/tab_story_affaires.png) | ![](images/tab_story4.png) |
-
-Story en 5 points sur Tableau Public. Expressions LOD (`FIXED` par commune, année et type pour situer chaque vente par rapport à son marché), calculs de table (N-1, 12 mois glissants, rang), paramètres (budget, mesure dynamique, seuil de bonne affaire), action d'ensemble pour comparer des communes, info-bulle contenant un graphique. Voir [`tableau/`](tableau/).
+Fichier : [`powerbi/dvf_cote_azur.pbix`](powerbi/dvf_cote_azur.pbix) · mesures : [`powerbi/mesures.dax`](powerbi/mesures.dax)
 
 ## Analyses
 
@@ -104,7 +76,7 @@ flowchart TB
     H --> P[Note de synthèse PDF]
     I --> P
     E --> J[Parquet] --> K[Power BI]
-    E --> L[Extrait plat] --> T[Tableau Public]
+    E --> L[Extrait plat] --> T[Tableau, à venir]
 ```
 
 ## Modèle de données
@@ -161,7 +133,7 @@ Chaque vente exclue reçoit un **motif explicite**, et un contrôle bloquant vé
 ## Qualité et tests
 
 - **11 contrôles qualité automatiques** sur le modèle (unicité, intégrité référentielle, réconciliation brut/conservé/rejeté, continuité du calendrier, bornes métier). Un échec bloquant arrête le pipeline avant toute publication. Rapport : `outputs/quality_report.md`.
-- **25 tests** (`pytest`) : un jeu de données construit à la main où chaque vente reproduit un piège réel, la validation du modèle sur des effets connus, et le pipeline de bout en bout.
+- **26 tests** (`pytest`) : un jeu de données construit à la main où chaque vente reproduit un piège réel, la validation du modèle sur des effets connus, et le pipeline de bout en bout.
 - **Intégration continue** GitHub Actions : lint, tests et pipeline complet sur données synthétiques à chaque commit.
 - **Actualisation automatique** : chaque mois, une GitHub Action retélécharge DVF, relance tout et publie le README, les graphiques et la note mis à jour. Si un contrôle bloquant échoue, rien n'est publié.
 
@@ -194,8 +166,8 @@ dvf-cote-azur/
 │   └── 05_bi_extracts.sql      extrait plat pour Tableau
 ├── src/dvf/                    pipeline, modèle, graphiques, enseignements, note PDF
 ├── tests/                      pièges DVF, validation du modèle, bout en bout
-├── powerbi/                    mesures DAX, thème, guide de construction
-├── tableau/                    champs calculés et LOD, guide de la Story
+├── powerbi/                    tableau de bord .pbix, mesures DAX, thème
+├── tableau/                    préparation d'une Story Tableau Public (à venir)
 ├── .github/workflows/          CI + actualisation mensuelle
 ├── seeds/                      référentiels (communes littorales)
 ├── docs/                       méthodologie, dictionnaire de données
@@ -204,7 +176,7 @@ dvf-cote-azur/
 
 ## Stack
 
-**SQL** (DuckDB : CTE, fonctions de fenêtre, `QUANTILE_CONT`, `FILTER`) · **Python** (pandas, statsmodels, matplotlib, reportlab) · **Power BI** (DAX, What-if, info-bulles) · **Tableau** (LOD, calculs de table, paramètres, actions d'ensemble) · **pytest** · **GitHub Actions**
+**SQL** (DuckDB : CTE, fonctions de fenêtre, `QUANTILE_CONT`, `FILTER`) · **Python** (pandas, statsmodels, matplotlib, reportlab) · **Power BI** (DAX, What-if, info-bulles) · **pytest** · **GitHub Actions**
 
 ## Source et licence
 
